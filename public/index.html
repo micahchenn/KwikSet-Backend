@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kwikset Lock Management</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Kwikset Lock Management</h1>
+            <p class="subtitle">Automated Access Code Generator</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('devices')">Devices</button>
+            <button class="tab-btn" onclick="showTab('connect')">Connect Lock</button>
+            <button class="tab-btn" onclick="showTab('payment')">Create Access Code</button>
+            <button class="tab-btn" onclick="showTab('codes')">Access Codes</button>
+        </div>
+
+        <!-- Devices Tab -->
+        <div id="devices-tab" class="tab-content active">
+            <div class="card">
+                <h2>Your Kwikset Devices</h2>
+                <button class="btn btn-primary" onclick="loadDevices()">Refresh Devices</button>
+                <div id="devices-list" class="devices-grid"></div>
+            </div>
+        </div>
+
+        <!-- Connect Lock Tab -->
+        <div id="connect-tab" class="tab-content">
+            <div class="card">
+                <h2>Connect Your Kwikset Lock</h2>
+                <div class="info-box">
+                    <h3>📋 Before You Start:</h3>
+                    <ol>
+                        <li>Make sure you have a <strong>Seam API key</strong> in your <code>.env</code> file</li>
+                        <li>Install the <strong>Kwikset App</strong> on your phone and add your lock</li>
+                        <li><strong>Disable 2-Step Verification</strong> in the Kwikset App (Account Settings)</li>
+                        <li>Have your <strong>Kwikset App login credentials</strong> ready</li>
+                    </ol>
+                </div>
+                
+                <div id="connect-status" class="result-box" style="display: none;"></div>
+                
+                <button class="btn btn-primary btn-large" onclick="createConnectWebview()" id="connect-btn">
+                    🔗 Connect Your Kwikset Lock
+                </button>
+                
+                <div id="connect-webview-container" style="display: none; margin-top: 20px;">
+                    <h3>Follow these steps:</h3>
+                    <ol>
+                        <li>Click the button below to open the Seam Connect page</li>
+                        <li>Log in with your <strong>Kwikset App credentials</strong></li>
+                        <li>Authorize Seam to access your devices</li>
+                        <li>Come back here and click "Check Connection"</li>
+                    </ol>
+                    <a id="connect-url" href="#" target="_blank" class="btn btn-primary" style="margin: 15px 0;">
+                        🌐 Open Seam Connect Page
+                    </a>
+                    <button class="btn btn-secondary" onclick="checkConnection()">
+                        ✅ Check Connection Status
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment/Access Code Tab -->
+        <div id="payment-tab" class="tab-content">
+            <div class="card">
+                <h2>Create Access Code After Payment</h2>
+                <form id="payment-form" onsubmit="processPayment(event)">
+                    <div class="form-group">
+                        <label for="payment-id">Payment ID *</label>
+                        <input type="text" id="payment-id" required placeholder="pay_123456">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customer-name">Customer Name *</label>
+                            <input type="text" id="customer-name" required placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label for="customer-email">Customer Email *</label>
+                            <input type="email" id="customer-email" required placeholder="customer@example.com">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="customer-phone">Customer Phone (Optional)</label>
+                        <input type="tel" id="customer-phone" placeholder="+1234567890">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="device-select">Select Device *</label>
+                        <select id="device-select" required>
+                            <option value="">Loading devices...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="check-in">Check-in Date & Time *</label>
+                            <input type="datetime-local" id="check-in" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="check-out">Check-out Date & Time *</label>
+                            <input type="datetime-local" id="check-out" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-large">
+                        🎫 Create Access Code & Send to Customer
+                    </button>
+                </form>
+
+                <div id="payment-result" class="result-box"></div>
+            </div>
+        </div>
+
+        <!-- Access Codes Tab -->
+        <div id="codes-tab" class="tab-content">
+            <div class="card">
+                <h2>Access Codes</h2>
+                <p class="info-text">Access codes will appear here after creation. Use the "Create Access Code" tab to generate new codes.</p>
+                <div id="codes-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+

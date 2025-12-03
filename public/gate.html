@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kwikset Smart Lock - Access Control</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .lock-container {
+            background: linear-gradient(145deg, #e8e8e8, #d0d0d0);
+            border-radius: 30px;
+            padding: 50px 40px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.3),
+                inset 0 2px 10px rgba(255, 255, 255, 0.8),
+                inset 0 -2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 420px;
+            width: 100%;
+            position: relative;
+            animation: lockAppear 0.8s ease-out;
+        }
+
+        @keyframes lockAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .lock-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .lock-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .lock-brand {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .display-panel {
+            background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+            border-radius: 15px;
+            padding: 30px 20px;
+            margin-bottom: 30px;
+            box-shadow: 
+                inset 0 2px 10px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(0, 150, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .display-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: scanLine 2s linear infinite;
+        }
+
+        @keyframes scanLine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .display-panel.active {
+            box-shadow: 
+                inset 0 2px 10px rgba(0, 0, 0, 0.8),
+                0 0 30px rgba(0, 255, 0, 0.4);
+        }
+
+        .display-panel.error {
+            box-shadow: 
+                inset 0 2px 10px rgba(0, 0, 0, 0.8),
+                0 0 30px rgba(255, 0, 0, 0.4);
+            animation: errorShake 0.5s;
+        }
+
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .display-panel.unlocking {
+            animation: unlockPulse 1s ease-in-out;
+        }
+
+        @keyframes unlockPulse {
+            0%, 100% { 
+                box-shadow: 
+                    inset 0 2px 10px rgba(0, 0, 0, 0.8),
+                    0 0 20px rgba(0, 150, 255, 0.2);
+            }
+            50% { 
+                box-shadow: 
+                    inset 0 2px 10px rgba(0, 0, 0, 0.8),
+                    0 0 40px rgba(0, 255, 0, 0.6);
+            }
+        }
+
+        .code-display {
+            font-size: 56px;
+            font-weight: 300;
+            color: #00ff88;
+            letter-spacing: 12px;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .code-display.error {
+            color: #ff4444;
+            text-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+            animation: digitError 0.3s;
+        }
+
+        @keyframes digitError {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .code-display.success {
+            color: #00ff88;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
+            animation: digitSuccess 0.5s;
+        }
+
+        @keyframes digitSuccess {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        .status-message {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+            min-height: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .status-message.success {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+        }
+
+        .status-message.error {
+            color: #ff4444;
+            text-shadow: 0 0 10px rgba(255, 68, 68, 0.4);
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .keypad-btn {
+            background: linear-gradient(145deg, #f5f5f5, #e0e0e0);
+            border: none;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.2),
+                inset 0 2px 4px rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .keypad-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .keypad-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 6px 12px rgba(0, 0, 0, 0.25),
+                inset 0 2px 4px rgba(255, 255, 255, 0.9);
+        }
+
+        .keypad-btn:active {
+            transform: translateY(0) scale(0.95);
+            box-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.2),
+                inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .keypad-btn:active::before {
+            width: 100px;
+            height: 100px;
+        }
+
+        .keypad-btn.clear {
+            background: linear-gradient(145deg, #ff6b6b, #ee5a5a);
+            color: white;
+            grid-column: span 1;
+        }
+
+        .keypad-btn.clear:hover {
+            background: linear-gradient(145deg, #ff7b7b, #ff6b6b);
+        }
+
+        .keypad-btn.enter {
+            background: linear-gradient(145deg, #51cf66, #40c057);
+            color: white;
+            grid-column: span 2;
+            border-radius: 40px;
+            width: auto;
+        }
+
+        .keypad-btn.enter:hover {
+            background: linear-gradient(145deg, #61df76, #51cf66);
+        }
+
+        .keypad-btn.enter:disabled {
+            background: linear-gradient(145deg, #999, #888);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .lock-status {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 15px;
+            margin-top: 20px;
+            transition: all 0.5s ease;
+        }
+
+        .lock-status.locked {
+            border: 2px solid #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+        }
+
+        .lock-status.unlocked {
+            border: 2px solid #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            animation: unlockSuccess 1s ease-out;
+        }
+
+        @keyframes unlockSuccess {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 rgba(0, 255, 136, 0);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 rgba(0, 255, 136, 0);
+            }
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background: #ff4444;
+            box-shadow: 0 0 10px rgba(255, 68, 68, 0.6);
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-indicator.unlocked {
+            background: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+            animation: statusPulseUnlocked 1s ease-in-out infinite;
+        }
+
+        @keyframes statusPulseUnlocked {
+            0%, 100% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.8;
+                transform: scale(1.2);
+            }
+        }
+
+        .status-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .lock-status.locked .status-text {
+            color: #ff4444;
+        }
+
+        .lock-status.unlocked .status-text {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+        }
+
+        .info-text {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .digit-enter {
+            animation: digitEnter 0.3s ease-out;
+        }
+
+        @keyframes digitEnter {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) rotateY(90deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotateY(0deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="lock-container">
+        <div class="lock-header">
+            <div class="lock-logo">KWIKSET</div>
+            <div class="lock-brand">SmartCode</div>
+        </div>
+
+        <div class="display-panel" id="display-panel">
+            <div class="code-display" id="code-display">------</div>
+            <div class="status-message" id="status-message">Enter your 6-digit code</div>
+        </div>
+
+        <div class="keypad">
+            <button class="keypad-btn" onclick="enterDigit('1')">1</button>
+            <button class="keypad-btn" onclick="enterDigit('2')">2</button>
+            <button class="keypad-btn" onclick="enterDigit('3')">3</button>
+            <button class="keypad-btn" onclick="enterDigit('4')">4</button>
+            <button class="keypad-btn" onclick="enterDigit('5')">5</button>
+            <button class="keypad-btn" onclick="enterDigit('6')">6</button>
+            <button class="keypad-btn" onclick="enterDigit('7')">7</button>
+            <button class="keypad-btn" onclick="enterDigit('8')">8</button>
+            <button class="keypad-btn" onclick="enterDigit('9')">9</button>
+            <button class="keypad-btn clear" onclick="clearCode()">C</button>
+            <button class="keypad-btn" onclick="enterDigit('0')">0</button>
+            <button class="keypad-btn enter" onclick="submitCode()" id="enter-btn">ENTER</button>
+        </div>
+
+        <div class="lock-status locked" id="lock-status">
+            <span class="status-indicator" id="status-indicator"></span>
+            <span class="status-text" id="status-text">LOCKED</span>
+        </div>
+
+        <div class="info-text">
+            Crappie House Access Control
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        let enteredCode = '';
+        const CODE_LENGTH = 6;
+        let isProcessing = false;
+
+        function enterDigit(digit) {
+            if (isProcessing) return;
+            
+            if (enteredCode.length < CODE_LENGTH) {
+                enteredCode += digit;
+                updateDisplay();
+                playButtonSound();
+            }
+        }
+
+        function clearCode() {
+            if (isProcessing) return;
+            
+            enteredCode = '';
+            updateDisplay();
+            resetStatus();
+            playButtonSound();
+        }
+
+        function updateDisplay() {
+            const display = document.getElementById('code-display');
+            const panel = document.getElementById('display-panel');
+            const statusMsg = document.getElementById('status-message');
+            const enterBtn = document.getElementById('enter-btn');
+            
+            // Show entered digits with animation
+            let displayText = '';
+            for (let i = 0; i < CODE_LENGTH; i++) {
+                if (i < enteredCode.length) {
+                    displayText += enteredCode[i];
+                } else {
+                    displayText += '-';
+                }
+            }
+            
+            display.textContent = displayText;
+            
+            // Add animation to new digit
+            if (enteredCode.length > 0) {
+                display.classList.add('digit-enter');
+                setTimeout(() => display.classList.remove('digit-enter'), 300);
+            }
+            
+            // Update status message
+            if (enteredCode.length === 0) {
+                statusMsg.textContent = 'Enter your 6-digit code';
+                statusMsg.className = 'status-message';
+                panel.className = 'display-panel';
+                enterBtn.disabled = false;
+            } else if (enteredCode.length < CODE_LENGTH) {
+                statusMsg.textContent = `${CODE_LENGTH - enteredCode.length} more digit${CODE_LENGTH - enteredCode.length > 1 ? 's' : ''}`;
+                statusMsg.className = 'status-message';
+                panel.className = 'display-panel';
+                enterBtn.disabled = false;
+            } else {
+                statusMsg.textContent = 'Press ENTER to unlock';
+                statusMsg.className = 'status-message';
+                panel.className = 'display-panel active';
+                enterBtn.disabled = false;
+            }
+        }
+
+        async function submitCode() {
+            if (isProcessing) return;
+            
+            if (enteredCode.length !== CODE_LENGTH) {
+                showError('Please enter a complete 6-digit code');
+                return;
+            }
+
+            isProcessing = true;
+            const panel = document.getElementById('display-panel');
+            const statusMsg = document.getElementById('status-message');
+            const display = document.getElementById('code-display');
+            const lockStatus = document.getElementById('lock-status');
+            const statusIndicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
+            const enterBtn = document.getElementById('enter-btn');
+
+            enterBtn.disabled = true;
+
+            // Show processing animation
+            panel.className = 'display-panel unlocking';
+            statusMsg.textContent = 'Validating...';
+            statusMsg.className = 'status-message';
+
+            try {
+                // Check if code is valid - try multiple endpoints
+                let response;
+                let data;
+                
+                try {
+                    response = await fetch(`${API_BASE}/admin/access-codes?activeOnly=true`);
+                    data = await response.json();
+                } catch (e) {
+                    // Fallback: try without activeOnly filter
+                    response = await fetch(`${API_BASE}/admin/access-codes`);
+                    data = await response.json();
+                }
+
+                if (data.success) {
+                    // Find matching code (check both active and all codes)
+                    let matchingCode = data.accessCodes.find(code => 
+                        code.pinCode === enteredCode && code.isActive
+                    );
+                    
+                    // If not found in active, check all codes
+                    if (!matchingCode) {
+                        const allResponse = await fetch(`${API_BASE}/admin/access-codes`);
+                        const allData = await allResponse.json();
+                        if (allData.success) {
+                            matchingCode = allData.accessCodes.find(code => 
+                                code.pinCode === enteredCode
+                            );
+                        }
+                    }
+
+                    if (matchingCode && matchingCode.isActive) {
+                        // Success - unlock
+                        showSuccess(matchingCode);
+                    } else {
+                        // Code not found or not active
+                        showError('Invalid or expired access code');
+                    }
+                } else {
+                    showError('Error validating code');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Connection error. Please try again.');
+            } finally {
+                isProcessing = false;
+                enterBtn.disabled = false;
+            }
+        }
+
+        function showSuccess(codeData) {
+            const panel = document.getElementById('display-panel');
+            const statusMsg = document.getElementById('status-message');
+            const display = document.getElementById('code-display');
+            const lockStatus = document.getElementById('lock-status');
+            const statusIndicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
+
+            // Update display with success animation
+            display.classList.add('success');
+            panel.className = 'display-panel active';
+            statusMsg.textContent = '✓ Access Granted';
+            statusMsg.className = 'status-message success';
+
+            // Update lock status
+            lockStatus.className = 'lock-status unlocked';
+            statusIndicator.className = 'status-indicator unlocked';
+            statusText.textContent = 'UNLOCKED';
+
+            // Show code info after animation
+            setTimeout(() => {
+                statusMsg.innerHTML = `
+                    ✓ Access Granted<br>
+                    <small style="color: #888; font-size: 11px; margin-top: 5px; display: block;">
+                        ${codeData.customerName || 'Guest'} • Valid until ${new Date(codeData.endsAt).toLocaleDateString()}
+                    </small>
+                `;
+            }, 1000);
+
+            // Auto-lock after 5 seconds
+            setTimeout(() => {
+                resetStatus();
+                clearCode();
+            }, 5000);
+        }
+
+        function showError(message) {
+            const panel = document.getElementById('display-panel');
+            const statusMsg = document.getElementById('status-message');
+            const display = document.getElementById('code-display');
+            const lockStatus = document.getElementById('lock-status');
+            const statusIndicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
+
+            // Update display with error animation
+            display.classList.add('error');
+            panel.className = 'display-panel error';
+            statusMsg.textContent = '✗ ' + message;
+            statusMsg.className = 'status-message error';
+
+            // Keep lock locked
+            lockStatus.className = 'lock-status locked';
+            statusIndicator.className = 'status-indicator';
+            statusText.textContent = 'LOCKED';
+
+            // Clear error animation and code after 2 seconds
+            setTimeout(() => {
+                display.classList.remove('error');
+                clearCode();
+            }, 2000);
+        }
+
+        function resetStatus() {
+            const lockStatus = document.getElementById('lock-status');
+            const statusIndicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
+
+            lockStatus.className = 'lock-status locked';
+            statusIndicator.className = 'status-indicator';
+            statusText.textContent = 'LOCKED';
+        }
+
+        function playButtonSound() {
+            // Optional: Add sound effect here
+            // const audio = new Audio('button-click.mp3');
+            // audio.play();
+        }
+
+        // Initialize
+        updateDisplay();
+    </script>
+</body>
+</html>

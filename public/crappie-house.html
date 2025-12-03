@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crappie House Day Pass - HI-LINE Resort</title>
+    <link rel="stylesheet" href="crappie-house.css">
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header -->
+        <header class="main-header">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="logo.png" alt="HI-LINE Resort" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="logo-text" style="display: none;">
+                        <span class="logo-hiline">HI-LINE</span>
+                        <span class="logo-resort">Resort</span>
+                    </div>
+                </div>
+                <nav class="main-nav">
+                    <a href="#">HOME</a>
+                    <a href="#">ABOUT</a>
+                    <a href="#">ACCOMMODATIONS</a>
+                    <a href="#">GOOD TIMES</a>
+                    <a href="#">FISHING</a>
+                    <a href="#">CONTACT</a>
+                    <a href="#" class="nav-book">BOOK NOW</a>
+                </nav>
+                <div class="header-contact">
+                    <span class="phone">325-379-1065</span>
+                    <button class="text-us-btn">Text Us</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+                <h1 class="page-title">Crappie House Day Pass</h1>
+                <p class="page-subtitle">$15 per person per day • Gate access with 6-digit code</p>
+
+                <!-- Important Notice -->
+                <div class="warning-box">
+                    <strong>⚠️ IMPORTANT:</strong> Each adult must have their own unique access code. 
+                    <strong>Codes cannot be shared.</strong> Children may share codes with an accompanying adult.
+                </div>
+
+                <!-- Checkout Form -->
+                <form id="checkout-form" class="checkout-form">
+                    <!-- Date Selection -->
+                    <section class="form-section">
+                        <h2 class="section-title">Select Dates</h2>
+                        <p class="section-note">Select the dates you want to fish. Codes will be active from purchase time until 11:59 PM on each selected date.</p>
+                        <div class="date-picker-container">
+                            <input type="date" id="date-picker" class="date-input" required>
+                            <button type="button" class="btn-add-date" onclick="addDate()">+ Add Date</button>
+                        </div>
+                        <div id="selected-dates" class="selected-dates"></div>
+                    </section>
+
+                    <!-- Adults Section -->
+                    <section class="form-section">
+                        <h2 class="section-title">Adults</h2>
+                        <p class="section-note">Each adult will receive their own unique access code</p>
+                        <div id="adults-container" class="people-container">
+                            <!-- Adult entries will be added here -->
+                        </div>
+                        <button type="button" class="btn-add-person" onclick="addAdult()">+ Add Another Adult</button>
+                    </section>
+
+                    <!-- Children Section -->
+                    <section class="form-section">
+                        <h2 class="section-title">Children</h2>
+                        <p class="section-note">Children share codes with adults but are charged $15 per day each</p>
+                        <div class="children-input">
+                            <label for="children-count">Number of Children:</label>
+                            <input type="number" id="children-count" min="0" value="0" class="number-input" onchange="updateChildren()">
+                        </div>
+                    </section>
+
+                    <!-- Payment Section -->
+                    <section class="form-section payment-section">
+                        <h2 class="section-title">Payment Information</h2>
+                        <div class="payment-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="card-number">Card Number</label>
+                                    <input type="text" id="card-number" placeholder="1111 1111 1111 1111" maxlength="19" 
+                                           pattern="[0-9\s]{13,19}" required oninput="formatCardNumber(this)">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="card-expiry">Expiry Date</label>
+                                    <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5" 
+                                           pattern="[0-9]{2}/[0-9]{2}" required oninput="formatExpiry(this)">
+                                </div>
+                                <div class="form-group">
+                                    <label for="card-cvv">CVV</label>
+                                    <input type="text" id="card-cvv" placeholder="111" maxlength="3" 
+                                           pattern="[0-9]{3}" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="card-zip">ZIP Code</label>
+                                    <input type="text" id="card-zip" placeholder="12345" maxlength="5" 
+                                           pattern="[0-9]{5}" required>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Order Summary -->
+                    <section class="form-section summary-section">
+                        <h2 class="section-title">Order Summary</h2>
+                        <div id="order-summary" class="order-summary">
+                            <div class="summary-row">
+                                <span>Days:</span>
+                                <span id="summary-days">0</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Adults:</span>
+                                <span id="summary-adults">0</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Children:</span>
+                                <span id="summary-children">0</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>Total:</span>
+                                <span id="summary-total">$0.00</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-submit" id="submit-btn">
+                        Complete Purchase
+                    </button>
+                </form>
+
+                <!-- Success Modal -->
+                <div id="success-modal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <span class="close-modal" onclick="closeModal()">&times;</span>
+                        <h2>✅ Purchase Complete!</h2>
+                        <div id="success-content"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="crappie-house.js"></script>
+</body>
+</html>
+
