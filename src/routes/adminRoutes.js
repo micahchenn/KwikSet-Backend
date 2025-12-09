@@ -113,8 +113,19 @@ router.get('/people', async (req, res) => {
       
       const start = new Date(code.startsAt);
       const end = new Date(code.endsAt);
-      // Code is active if current time is >= start time AND <= end time
-      const isActive = now >= start && now <= end;
+      
+      // Determine status: expired, active, or inactive
+      let status;
+      if (now > end) {
+        status = 'expired';  // Code is in the past
+      } else if (now >= start && now <= end) {
+        status = 'active';   // Code is active today
+      } else {
+        status = 'inactive'; // Code is in the future
+      }
+      
+      // Keep isActive for backward compatibility
+      const isActive = status === 'active';
       
       person.accessCodes.push({
         id: code.id,
@@ -122,6 +133,7 @@ router.get('/people', async (req, res) => {
         date: code.date,
         startsAt: code.startsAt,
         endsAt: code.endsAt,
+        status: status,
         isActive: isActive,
         purchaseId: code.purchaseId,
       });
@@ -135,7 +147,7 @@ router.get('/people', async (req, res) => {
       ...person,
       dates: person.dates.sort(),
       totalCodes: person.accessCodes.length,
-      activeCodes: person.accessCodes.filter(c => c.isActive).length,
+      activeCodes: person.accessCodes.filter(c => c.status === 'active').length,
     }));
 
     res.json({
@@ -185,8 +197,19 @@ router.get('/access-codes', async (req, res) => {
       accessCodes: codes.map(code => {
         const start = new Date(code.startsAt);
         const end = new Date(code.endsAt);
-        // Code is active if current time is >= start time AND <= end time
-        const isActive = now >= start && now <= end;
+        
+        // Determine status: expired, active, or inactive
+        let status;
+        if (now > end) {
+          status = 'expired';  // Code is in the past
+        } else if (now >= start && now <= end) {
+          status = 'active';   // Code is active today
+        } else {
+          status = 'inactive'; // Code is in the future
+        }
+        
+        // Keep isActive for backward compatibility
+        const isActive = status === 'active';
         
         return {
           id: code.id,
@@ -197,6 +220,7 @@ router.get('/access-codes', async (req, res) => {
           date: code.date,
           startsAt: code.startsAt,
           endsAt: code.endsAt,
+          status: status,
           isActive: isActive,
           purchaseId: code.purchaseId,
           createdAt: code.createdAt,

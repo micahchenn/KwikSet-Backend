@@ -78,6 +78,10 @@
             background: #dc3545;
             color: white;
         }
+        .status-inactive {
+            background: #ff9800;
+            color: white;
+        }
         .code-info {
             background: #f8f9fa;
             padding: 10px;
@@ -262,9 +266,28 @@
                             </thead>
                             <tbody>
                                 ${data.accessCodes.map(code => {
-                                    const isActive = code.isActive;
+                                    // Calculate status if not provided (fallback for old data)
+                                    let status = code.status;
+                                    if (!status) {
+                                        const now = new Date();
+                                        const start = new Date(code.startsAt);
+                                        const end = new Date(code.endsAt);
+                                        if (now > end) {
+                                            status = 'expired';
+                                        } else if (now >= start && now <= end) {
+                                            status = 'active';
+                                        } else {
+                                            status = 'inactive';
+                                        }
+                                    }
+                                    
+                                    const statusLabels = {
+                                        'active': '✓ Active',
+                                        'expired': '✗ Expired',
+                                        'inactive': '○ Inactive'
+                                    };
                                     return `
-                                        <tr class="${isActive ? 'active-row' : ''}">
+                                        <tr class="${status === 'active' ? 'active-row' : ''}">
                                             <td><span class="code-display">${code.pinCode}</span></td>
                                             <td>${code.customerName}</td>
                                             <td>${code.customerEmail}</td>
@@ -273,8 +296,8 @@
                                             <td>${new Date(code.startsAt).toLocaleString()}</td>
                                             <td>${new Date(code.endsAt).toLocaleString()}</td>
                                             <td>
-                                                <span class="status-badge ${isActive ? 'status-active' : 'status-expired'}">
-                                                    ${isActive ? '✓ Active' : '✗ Expired'}
+                                                <span class="status-badge status-${status}">
+                                                    ${statusLabels[status] || status}
                                                 </span>
                                             </td>
                                         </tr>
@@ -329,16 +352,44 @@
                                 </div>
                                 <div style="margin-top: 10px;">
                                     <strong>Access Codes (${person.totalCodes} total, ${person.activeCodes} active):</strong>
-                                    ${person.accessCodes.map(code => `
+                                    ${person.accessCodes.map(code => {
+                                        // Calculate status if not provided
+                                        let codeStatus = code.status;
+                                        if (!codeStatus) {
+                                            const now = new Date();
+                                            const start = new Date(code.startsAt);
+                                            const end = new Date(code.endsAt);
+                                            if (now > end) {
+                                                codeStatus = 'expired';
+                                            } else if (now >= start && now <= end) {
+                                                codeStatus = 'active';
+                                            } else {
+                                                codeStatus = 'inactive';
+                                            }
+                                        }
+                                        
+                                        const statusLabels = {
+                                            'active': '✓ Active',
+                                            'expired': '✗ Expired',
+                                            'inactive': '○ Inactive'
+                                        };
+                                        
+                                        return `
                                         <div class="code-info" style="margin-top: 8px;">
-                                            <div class="code-pin">${code.pinCode}</div>
-                                            <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                                <div class="code-pin">${code.pinCode}</div>
+                                                <span class="status-badge status-${codeStatus}">
+                                                    ${statusLabels[codeStatus] || codeStatus}
+                                                </span>
+                                            </div>
+                                            <div style="font-size: 12px; color: #666;">
                                                 Date: ${formatDate(code.date)}<br>
-                                                Active: ${new Date(code.startsAt).toLocaleString()} - ${new Date(code.endsAt).toLocaleString()}<br>
-                                                Status: ${code.isActive ? '<span style="color: #4CAF50;">✓ Active</span>' : '<span style="color: #dc3545;">✗ Expired</span>'}
+                                                Start: ${new Date(code.startsAt).toLocaleString()}<br>
+                                                End: ${new Date(code.endsAt).toLocaleString()}
                                             </div>
                                         </div>
-                                    `).join('')}
+                                    `;
+                                    }).join('')}
                                 </div>
                             </div>
                         `;

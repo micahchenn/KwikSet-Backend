@@ -212,3 +212,5 @@ The system is fully functional and ready for testing. Just:
 3. Configure email: `http://localhost:3000/email-config`
 4. Start selling day passes!
 
+
+

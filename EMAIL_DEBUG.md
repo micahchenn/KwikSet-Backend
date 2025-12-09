@@ -123,3 +123,5 @@ Instead of:
 2. Use `/api/debug/email-status` to see current configuration
 3. Use `/api/debug/test-email` to test with detailed error messages
 
+
+

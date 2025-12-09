@@ -20,6 +20,7 @@
             align-items: center;
             padding: 20px;
             overflow: hidden;
+            position: relative;
         }
 
         .lock-container {
@@ -382,6 +383,370 @@
                 transform: scale(1) rotateY(0deg);
             }
         }
+
+        /* Metal Gate Animation */
+        .gate-container {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            perspective: 1000px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .gate {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                #3a3a3a 0%, 
+                #2a2a2a 25%,
+                #3a3a3a 50%,
+                #2a2a2a 75%,
+                #3a3a3a 100%);
+            background-size: 30px 30px;
+            border-left: 12px solid #1a1a1a;
+            box-shadow: 
+                inset -15px 0 40px rgba(0, 0, 0, 0.9),
+                -8px 0 30px rgba(0, 0, 0, 0.7),
+                0 0 0 4px rgba(100, 100, 100, 0.3);
+            transform-origin: right center;
+            transform: rotateY(0deg);
+            transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: visible;
+        }
+
+        .gate::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(0, 0, 0, 0.4) 28px, rgba(0, 0, 0, 0.4) 30px),
+                repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(0, 0, 0, 0.4) 28px, rgba(0, 0, 0, 0.4) 30px);
+            pointer-events: none;
+        }
+
+        .gate-sign {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(145deg, #d4af37, #b8941f);
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.5),
+                inset 0 2px 5px rgba(255, 255, 255, 0.3),
+                inset 0 -2px 5px rgba(0, 0, 0, 0.3);
+            border: 3px solid #8b6914;
+            z-index: 10;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .gate-sign-text {
+            color: #1a1a1a;
+            font-weight: bold;
+            font-size: 14px;
+            line-height: 1.4;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.5px;
+        }
+
+        .gate-sign-text .resort-name {
+            font-size: 16px;
+            color: #8b0000;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .gate-bar {
+            position: absolute;
+            left: 20px;
+            width: 12px;
+            height: 100%;
+            background: linear-gradient(90deg, #5a5a5a, #3a3a3a, #2a2a2a);
+            box-shadow: 
+                inset -3px 0 8px rgba(0, 0, 0, 0.9),
+                2px 0 5px rgba(0, 0, 0, 0.5);
+            border-right: 2px solid #1a1a1a;
+        }
+
+        .gate-bar:nth-child(1) { left: 40px; }
+        .gate-bar:nth-child(2) { left: 80px; }
+        .gate-bar:nth-child(3) { left: 120px; }
+        .gate-bar:nth-child(4) { left: 160px; }
+        .gate-bar:nth-child(5) { left: 200px; }
+        .gate-bar:nth-child(6) { left: 240px; }
+        .gate-bar:nth-child(7) { left: 280px; }
+        .gate-bar:nth-child(8) { left: 320px; }
+        .gate-bar:nth-child(9) { left: 360px; }
+
+        .gate.open {
+            transform: rotateY(-90deg);
+        }
+
+        .gate-lock-container {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+        }
+
+        .kwikset-lock {
+            width: 120px;
+            height: 140px;
+            background: linear-gradient(145deg, #e8e8e8, #d0d0d0);
+            border-radius: 15px;
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.6),
+                inset 0 2px 5px rgba(255, 255, 255, 0.8),
+                inset 0 -2px 5px rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border: 3px solid #b0b0b0;
+            position: relative;
+        }
+
+        .kwikset-lock-top {
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(145deg, #c0c0c0, #a0a0a0);
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 10px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .kwikset-lock-top::before {
+            content: 'KWIKSET';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10px;
+            font-weight: bold;
+            color: #333;
+            letter-spacing: 1px;
+        }
+
+        .kwikset-lock-body {
+            width: 100%;
+            height: 70px;
+            background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+            border-radius: 0 0 10px 10px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.8);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .kwikset-lock-display {
+            width: 60px;
+            height: 30px;
+            background: #000;
+            border-radius: 5px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00ff88;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
+        }
+
+        .kwikset-lock.locked .kwikset-lock-display {
+            color: #ff4444;
+            text-shadow: 0 0 10px rgba(255, 68, 68, 0.6);
+        }
+
+        .kwikset-lock.unlocked .kwikset-lock-display {
+            color: #00ff88;
+            text-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+            animation: lockUnlockPulse 1s ease-in-out;
+        }
+
+        @keyframes lockUnlockPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Fish Animation */
+        .fish-container {
+            position: fixed;
+            right: 400px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .fish-container.show {
+            opacity: 1;
+            animation: fishSwimIn 2s ease-out forwards;
+        }
+
+        @keyframes fishSwimIn {
+            0% {
+                transform: translateY(-50%) translateX(100px);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-50%) translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .fish {
+            width: 120px;
+            height: 80px;
+            position: relative;
+            animation: fishSwim 3s ease-in-out infinite;
+        }
+
+        @keyframes fishSwim {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-20px) rotate(-5deg);
+            }
+            50% {
+                transform: translateY(0) rotate(0deg);
+            }
+            75% {
+                transform: translateY(20px) rotate(5deg);
+            }
+        }
+
+        .fish-body {
+            width: 100px;
+            height: 60px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a, #ff8c8c);
+            border-radius: 50% 40% 50% 40%;
+            position: relative;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.3),
+                inset -10px -10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .fish-body::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 15px;
+            height: 15px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .fish-body::after {
+            content: '';
+            position: absolute;
+            top: 22px;
+            left: 25px;
+            width: 8px;
+            height: 8px;
+            background: #1a1a1a;
+            border-radius: 50%;
+        }
+
+        .fish-tail {
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 25px solid transparent;
+            border-bottom: 25px solid transparent;
+            border-left: 40px solid #ff6b6b;
+            filter: drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.3));
+        }
+
+        .fish-fin-top {
+            position: absolute;
+            top: -10px;
+            left: 30px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 20px solid #ff8c8c;
+        }
+
+        .fish-fin-bottom {
+            position: absolute;
+            bottom: -10px;
+            left: 40px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 20px solid #ff8c8c;
+        }
+
+        .fish-bubbles {
+            position: absolute;
+            top: 50%;
+            left: -30px;
+            transform: translateY(-50%);
+        }
+
+        .bubble {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: bubbleFloat 2s ease-in-out infinite;
+        }
+
+        .bubble:nth-child(1) {
+            left: 0;
+            animation-delay: 0s;
+        }
+
+        .bubble:nth-child(2) {
+            left: 15px;
+            animation-delay: 0.5s;
+            width: 6px;
+            height: 6px;
+        }
+
+        .bubble:nth-child(3) {
+            left: 30px;
+            animation-delay: 1s;
+            width: 10px;
+            height: 10px;
+        }
+
+        @keyframes bubbleFloat {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateY(-30px) scale(1.2);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-60px) scale(0.8);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -418,6 +783,52 @@
 
         <div class="info-text">
             Crappie House Access Control
+        </div>
+    </div>
+
+    <!-- Metal Gate Animation -->
+    <div class="gate-container">
+        <div class="gate" id="gate">
+            <div class="gate-sign">
+                <div class="gate-sign-text">
+                    <div class="resort-name">Hi Line Resort's</div>
+                    <div>Welcome to</div>
+                    <div style="font-size: 16px; margin-top: 3px;">Famous Crappie House Gate</div>
+                </div>
+            </div>
+            <div class="gate-bar"></div>
+            <div class="gate-bar"></div>
+            <div class="gate-bar"></div>
+            <div class="gate-bar"></div>
+            <div class="gate-bar"></div>
+            <div class="gate-bar"></div>
+            <div class="gate-bar"></div>
+            <div class="gate-bar"></div>
+            <div class="gate-bar"></div>
+            <div class="gate-lock-container">
+                <div class="kwikset-lock locked" id="kwikset-lock">
+                    <div class="kwikset-lock-top"></div>
+                    <div class="kwikset-lock-body">
+                        <div class="kwikset-lock-display">LOCKED</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fish Animation -->
+    <div class="fish-container" id="fish-container">
+        <div class="fish">
+            <div class="fish-bubbles">
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+            </div>
+            <div class="fish-body">
+                <div class="fish-fin-top"></div>
+                <div class="fish-fin-bottom"></div>
+            </div>
+            <div class="fish-tail"></div>
         </div>
     </div>
 
@@ -514,42 +925,60 @@
             statusMsg.className = 'status-message';
 
             try {
-                // Check if code is valid - try multiple endpoints
-                let response;
-                let data;
-                
-                try {
-                    response = await fetch(`${API_BASE}/admin/access-codes?activeOnly=true`);
-                    data = await response.json();
-                } catch (e) {
-                    // Fallback: try without activeOnly filter
-                    response = await fetch(`${API_BASE}/admin/access-codes`);
-                    data = await response.json();
-                }
+                // Fetch all access codes to check status
+                const response = await fetch(`${API_BASE}/admin/access-codes`);
+                const data = await response.json();
 
                 if (data.success) {
-                    // Find matching code (check both active and all codes)
-                    let matchingCode = data.accessCodes.find(code => 
-                        code.pinCode === enteredCode && code.isActive
+                    // Find matching code by PIN
+                    const matchingCode = data.accessCodes.find(code => 
+                        code.pinCode === enteredCode
                     );
-                    
-                    // If not found in active, check all codes
+
                     if (!matchingCode) {
-                        const allResponse = await fetch(`${API_BASE}/admin/access-codes`);
-                        const allData = await allResponse.json();
-                        if (allData.success) {
-                            matchingCode = allData.accessCodes.find(code => 
-                                code.pinCode === enteredCode
-                            );
-                        }
+                        // Code not found
+                        showError('Invalid access code');
+                        return;
                     }
 
-                    if (matchingCode && matchingCode.isActive) {
+                    // Determine if code is active - check both status field and isActive for backward compatibility
+                    let isCodeActive = false;
+                    if (matchingCode.status) {
+                        isCodeActive = matchingCode.status === 'active';
+                    } else if (matchingCode.isActive !== undefined) {
+                        isCodeActive = matchingCode.isActive;
+                    } else {
+                        // Calculate status if not provided
+                        const now = new Date();
+                        const start = new Date(matchingCode.startsAt);
+                        const end = new Date(matchingCode.endsAt);
+                        isCodeActive = now >= start && now <= end;
+                    }
+
+                    if (isCodeActive) {
                         // Success - unlock
                         showSuccess(matchingCode);
                     } else {
-                        // Code not found or not active
-                        showError('Invalid or expired access code');
+                        // Code exists but is not active - determine why
+                        let statusMessage = 'Access code is not active';
+                        const codeStatus = matchingCode.status;
+                        
+                        if (codeStatus === 'expired') {
+                            statusMessage = 'Access code has expired';
+                        } else if (codeStatus === 'inactive') {
+                            statusMessage = 'Access code is not yet active';
+                        } else {
+                            // Calculate status if not provided
+                            const now = new Date();
+                            const start = new Date(matchingCode.startsAt);
+                            const end = new Date(matchingCode.endsAt);
+                            if (now > end) {
+                                statusMessage = 'Access code has expired';
+                            } else if (now < start) {
+                                statusMessage = 'Access code is not yet active';
+                            }
+                        }
+                        showError(statusMessage);
                     }
                 } else {
                     showError('Error validating code');
@@ -570,6 +999,9 @@
             const lockStatus = document.getElementById('lock-status');
             const statusIndicator = document.getElementById('status-indicator');
             const statusText = document.getElementById('status-text');
+            const gate = document.getElementById('gate');
+            const kwiksetLock = document.getElementById('kwikset-lock');
+            const fishContainer = document.getElementById('fish-container');
 
             // Update display with success animation
             display.classList.add('success');
@@ -581,6 +1013,19 @@
             lockStatus.className = 'lock-status unlocked';
             statusIndicator.className = 'status-indicator unlocked';
             statusText.textContent = 'UNLOCKED';
+
+            // Update Kwikset lock on gate
+            kwiksetLock.classList.remove('locked');
+            kwiksetLock.classList.add('unlocked');
+            kwiksetLock.querySelector('.kwikset-lock-display').textContent = 'OPEN';
+
+            // Open the gate
+            gate.classList.add('open');
+
+            // Show fish animation
+            setTimeout(() => {
+                fishContainer.classList.add('show');
+            }, 800);
 
             // Show code info after animation
             setTimeout(() => {
@@ -596,6 +1041,8 @@
             setTimeout(() => {
                 resetStatus();
                 clearCode();
+                gate.classList.remove('open');
+                fishContainer.classList.remove('show');
             }, 5000);
         }
 
@@ -629,10 +1076,20 @@
             const lockStatus = document.getElementById('lock-status');
             const statusIndicator = document.getElementById('status-indicator');
             const statusText = document.getElementById('status-text');
+            const gate = document.getElementById('gate');
+            const kwiksetLock = document.getElementById('kwikset-lock');
+            const fishContainer = document.getElementById('fish-container');
 
             lockStatus.className = 'lock-status locked';
             statusIndicator.className = 'status-indicator';
             statusText.textContent = 'LOCKED';
+            gate.classList.remove('open');
+            fishContainer.classList.remove('show');
+            
+            // Reset Kwikset lock on gate
+            kwiksetLock.classList.remove('unlocked');
+            kwiksetLock.classList.add('locked');
+            kwiksetLock.querySelector('.kwikset-lock-display').textContent = 'LOCKED';
         }
 
         function playButtonSound() {
@@ -640,6 +1097,58 @@
             // const audio = new Audio('button-click.mp3');
             // audio.play();
         }
+
+        // Keyboard event handlers for numpad support
+        document.addEventListener('keydown', function(event) {
+            if (isProcessing) return;
+
+            // Handle numpad keys
+            if (event.code.startsWith('Numpad')) {
+                event.preventDefault();
+                
+                if (event.code === 'Numpad0') {
+                    enterDigit('0');
+                } else if (event.code === 'Numpad1') {
+                    enterDigit('1');
+                } else if (event.code === 'Numpad2') {
+                    enterDigit('2');
+                } else if (event.code === 'Numpad3') {
+                    enterDigit('3');
+                } else if (event.code === 'Numpad4') {
+                    enterDigit('4');
+                } else if (event.code === 'Numpad5') {
+                    enterDigit('5');
+                } else if (event.code === 'Numpad6') {
+                    enterDigit('6');
+                } else if (event.code === 'Numpad7') {
+                    enterDigit('7');
+                } else if (event.code === 'Numpad8') {
+                    enterDigit('8');
+                } else if (event.code === 'Numpad9') {
+                    enterDigit('9');
+                } else if (event.code === 'NumpadEnter' || event.code === 'NumpadEqual') {
+                    submitCode();
+                }
+            }
+            
+            // Also handle regular number keys
+            if (event.key >= '0' && event.key <= '9' && !event.shiftKey && !event.ctrlKey && !event.altKey) {
+                event.preventDefault();
+                enterDigit(event.key);
+            }
+            
+            // Handle Enter key
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                submitCode();
+            }
+            
+            // Handle Backspace/Delete for clearing
+            if (event.key === 'Backspace' || event.key === 'Delete') {
+                event.preventDefault();
+                clearCode();
+            }
+        });
 
         // Initialize
         updateDisplay();
